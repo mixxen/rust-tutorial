@@ -1,55 +1,50 @@
 # Rust for Experienced Programmers
 
-Learn to write Rust you can explain, change, debug, and test. This course assumes you already program in C, C++, or Python; it does not assume you have written Rust before.
-
-The examples use ordinary names and small tasks. When a new symbol or term appears, the lesson explains it. The later embedded track will use Embassy on the NUCLEO-H723ZG.
+Learn to write Rust you can explain, change, debug, and test. This course assumes programming experience in C, C++, or Python, **not familiarity with Rust, Cargo, or Rust's file layout**.
 
 ## Start learning
 
-**[Lesson 00 — A first look at Rust](host/lessons/00-rust-orientation/README.md)** is the first implemented lesson. It compares one small task across languages, introduces the syntax, and gives you a change to make and test yourself.
+**[Lesson 00 — Write your first Rust program](host/lessons/00-rust-orientation/README.md)** now begins at the beginning. It explains Cargo, helps you create a project and open `src/main.rs`, and walks through Hello World before introducing functions, variables, the readings example, or tests.
 
-First choose a setup path: **[Linux](docs/setup-linux.md)**, **[Windows with WSL](docs/setup-wsl.md)**, or **[Docker / VS Code development container](docs/docker.md)**. No board is needed for Lesson 00.
+Read its four parts in order. Each identifies what to type in the terminal, which file to edit, and what the program should print. You work in your own practice project before touching the supplied exercise. New Rust punctuation is explained near its first use.
 
-With the setup complete, run these commands from the repository root:
+Start with **[Part 1 — Cargo, files, and Hello World](host/lessons/00-rust-orientation/FIRST_PROGRAM.md)**. It links to the installation path you need: [Linux](docs/setup-linux.md), [Windows with WSL](docs/setup-wsl.md), or [Docker / VS Code development container](docs/docker.md). No board is needed yet.
+
+Already tried the first version? The opening has been substantially rewritten in response to learner feedback. Begin with Part 1 rather than jumping straight back to the threshold exercise. Your existing exercise files are not reset by the new walkthrough.
+
+## What is available?
+
+| Material | Status |
+|---|---|
+| Lesson 00: four-part walkthrough, practice steps, exercise, hints, and solution | Implemented; revised after the first learner trial |
+| Linux/WSL instructions, Dockerfile, and automated host checks | Included; actual execution results are recorded in [Progress](PROGRESS.md) |
+| Lesson 01 — Toolchain and Cargo | Planned; will deepen the tools first used in Lesson 00 |
+| Remaining host lessons and Embassy track | Planned, not implemented |
+
+**Phase 1 is still in progress.** Passing build checks is not the same as demonstrating that the explanation works for a new learner. The revised lesson needs a fresh learner walkthrough. No embedded build or board execution is claimed.
+
+## After the walkthrough: repository checks
+
+The root Make commands remain available for checking the supplied material, but they are not your introduction to Rust. After following the lesson, you can run these from the repository root:
 
 ```bash
 make run
 make verify
 ```
 
-The program prints:
+`make run` runs the supplied readings example, not your Hello World practice file. `make verify` checks complete examples and supplied solutions, compiles the unfinished exercise, and checks the displayed walkthrough programs in a temporary project. It does **not** mean your exercise is finished and does not edit your practice project.
 
-```text
-Readings above 25: 1
-```
-
-`make verify` checks the working examples and supplied solutions. It does **not** claim your exercise is finished. Your exercise has its own command, introduced in the lesson.
-
-## What is available?
-
-| Material | Status |
-|---|---|
-| Lesson 00, exercise, hints, solution, and syntax reference | Implemented in the first Phase 1 batch |
-| Linux/WSL instructions, Dockerfile, and automated host checks | Included; observed results are recorded in [Progress](PROGRESS.md) |
-| Lesson 01 — Toolchain and Cargo | Next Phase 1 batch; not implemented yet |
-| Remaining host lessons and Embassy track | Planned, not implemented |
-
-**Phase 1 is in progress, not complete.** We are establishing one complete learning experience before expanding the course. No board execution or learner completion is claimed. [Progress and verification notes](PROGRESS.md) distinguish implemented files from checks actually run.
-
-## How lessons work
-
-Read the worked example, predict its behavior, run it, and then tackle the separate exercise. Hints offer gradual help. The complete solution explains the reasoning and an alternative. Tests help you check a change; they do not replace understanding it.
-
-Each implemented lesson has a Cargo package and Makefile. Cargo does the Rust work; Make just provides convenient shortcuts. The lesson shows both forms. There is no root Cargo package: ordinary host examples live in `host/`, while exercises and solutions are separate packages.
+Cargo is the Rust project tool; Make only gives convenient shortcuts. Each implemented lesson has a Cargo package and Makefile. The repository root is not a Cargo package. The supplied host packages are under `host/`; practice projects, exercises, and solutions are separate.
 
 ## Course and contributor documents
 
 | Document | Purpose |
 |---|---|
-| [Curriculum](CURRICULUM.md) | The full 27-lesson host track, 14-lesson embedded track, and optional extensions |
-| [Implementation plan](IMPLEMENTATION_PLAN.md) | Approved development phases and teaching standards |
-| [Progress](PROGRESS.md) | Current delivery and verification status; the planning documents retain their original planning snapshot |
-| [Contributor guide](CONTRIBUTING.md) | How to add a lesson without losing clarity or weakening checks |
-| [Tool versions](docs/tool-versions.md) | The selected toolchain and what is, and is not, pinned |
+| [Curriculum](CURRICULUM.md) | The planned 27-lesson host track, 14-lesson embedded track, and optional extensions |
+| [Implementation plan](IMPLEMENTATION_PLAN.md) | Small development phases and teaching standards |
+| [Progress](PROGRESS.md) | Current implementation, learner feedback, scope clarifications, and verification evidence |
+| [Contributor guide](CONTRIBUTING.md) | How to add lessons without weakening the explanations or checks |
+| [Authoring instructions](AGENTS.md) | Instructions for coding assistants, including lessons learned from reader feedback |
+| [Tool versions](docs/tool-versions.md) | The chosen toolchain and what is, and is not, pinned |
 
-Feedback about an unclear explanation is as valuable as a bug report. Include the lesson, the command or paragraph, what you expected, and where you became stuck. Never include secrets or private project code.
+Feedback about an unclear explanation is as valuable as a bug report. Include the lesson, what you tried, and the point where the explanation stopped making sense. Never include secrets or private project code.

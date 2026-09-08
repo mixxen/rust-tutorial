@@ -19,7 +19,7 @@ def main() -> None:
 
     for document in ROOT.rglob("*.md"):
         relative = document.relative_to(ROOT)
-        if any(part in {"target", ".git", "reports"} for part in relative.parts):
+        if any(part in {"target", ".git", "reports", "practice"} for part in relative.parts):
             continue
         content = re.sub(r"```.*?```", "", document.read_text(encoding="utf-8"), flags=re.S)
         for destination in re.findall(r"\[[^\]]*\]\(([^)]+)\)", content):

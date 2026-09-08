@@ -1,8 +1,10 @@
 # Set up on Linux
 
-This is the primary host-learning path. The package commands below target Ubuntu 24.04 or a comparable Debian-based distribution. A Rust **toolchain** is the compiler plus related tools; `rustup` installs and selects it. You need internet access for initial installation, but Lesson 00 has no third-party Rust dependencies and its checks run offline afterward.
+This guide installs the tools. **[Lesson 00, Part 1](../host/lessons/00-rust-orientation/FIRST_PROGRAM.md)** explains what they do and then teaches how to create and run your first program. You do not need to understand Cargo before reading the lesson's introduction.
 
-For Windows, start with [WSL setup](setup-wsl.md). For an isolated development environment, use [Docker](docker.md). No board or embedded tools are needed yet.
+Briefly: `rustc` compiles Rust, Cargo manages building and running a project, and `rustup` installs and selects their versions. A compiler release and its related tools are called a toolchain.
+
+The commands below target Ubuntu 24.04 or a comparable Debian-based distribution. Initial installation needs internet access; Lesson 00 itself has no external Rust dependencies. For Windows, use [WSL setup](setup-wsl.md). For an isolated environment, use [Docker](docker.md). No board or embedded tools are needed yet.
 
 ## 1. Install the operating-system tools
 
@@ -10,10 +12,10 @@ In a terminal:
 
 ```bash
 sudo apt-get update
-sudo apt-get install -y build-essential curl ca-certificates git python3
+sudo apt-get install -y build-essential curl ca-certificates git python3 less
 ```
 
-`build-essential` includes Make, a C/C++ toolchain, and the system support needed for linking. The C++ compiler is only needed to execute the optional three-language comparison check, not to follow the Rust walkthrough. Python 3.10 or newer runs the small repository checks; no Python packages need installing.
+`build-essential` supplies Make, a C/C++ toolchain, and the system support needed for linking. The C++ compiler is used only by the optional three-language comparison check, not the Rust walkthrough. Python 3.10 or newer runs the repository checks; no Python packages need installing.
 
 ## 2. Install rustup, unless you already have it
 
@@ -23,7 +25,7 @@ Check first:
 rustup --version
 ```
 
-If the command is missing, use the official installer. These commands download the script so you can inspect it before executing it:
+If that command is missing, download the official installer so you can inspect it before running it:
 
 ```bash
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o /tmp/rustup-install.sh
@@ -32,22 +34,22 @@ sh /tmp/rustup-install.sh -y --profile minimal --default-toolchain none
 . "$HOME/.cargo/env"
 ```
 
-Press `q` to leave `less`. The installer comes from the [official Rust installation service](https://www.rust-lang.org/tools/install). Do not run the installer with `sudo`.
+Press `q` to leave `less`. The installer comes from the [official Rust installation service](https://www.rust-lang.org/tools/install). Do not run it with `sudo`.
 
-We do not change an existing global Rust default. The repository's `rust-toolchain.toml` chooses its own release. See [rustup's toolchain selection rules](https://rust-lang.github.io/rustup/overrides.html) when an existing override selects a different version.
+This installation does not select a new global Rust default. The repository's `rust-toolchain.toml` chooses its own release. [Rustup's selection rules](https://rust-lang.github.io/rustup/overrides.html) explain existing environment or directory overrides that may affect it.
 
-## 3. Open your checkout and install its selected tools
+## 3. Open the tutorial and install its selected tools
 
-Clone the repository if you do not already have it:
+Use your existing checkout or extracted download. For a new Git checkout of the implementation branch:
 
 ```bash
-git clone https://github.com/mixxen/rust-tutorial.git
+git clone --branch phase-1/orientation https://github.com/mixxen/rust-tutorial.git
 cd rust-tutorial
 ```
 
-If you are reviewing an implementation pull request, switch to its branch before continuing. You should see `rust-toolchain.toml` and the `host/` directory in this checkout.
+The implementation is currently proposed in pull request #1. A checkout of `main` alone does not yet contain the lesson. For a ZIP download, extract the `phase-1/orientation` branch and open its extracted top-level folder instead. The folder name can differ from `rust-tutorial`; look for `rust-toolchain.toml` and `host/` inside it.
 
-From the repository root:
+From that repository root:
 
 ```bash
 rustup toolchain install 1.90.0 --profile minimal --component rustfmt --component clippy
@@ -56,32 +58,25 @@ rustc --version
 cargo --version
 ```
 
-The installation command requests the compiler and the formatter/linter used by the repository. `rustup show` then displays the active choice. The expected Rust release for this batch is **1.90.0**, not whichever release happens to be newest. [Tool versions](tool-versions.md) explains this choice. Installing a named toolchain does not replace an existing global default.
+The installation command requests the compiler plus formatting and lint tools. `rustup show` reports the active selection. The expected Rust release is **1.90.0**, not whatever happens to be newest. [Tool versions](tool-versions.md) explains this choice. Installing a named toolchain does not replace an existing global default.
 
-## 4. Run the first program and the checks
+## 4. Begin with your own Hello World
 
-Still in the repository root:
+Setup is complete when the version commands succeed in this directory. Return to **[Lesson 00, Part 1](../host/lessons/00-rust-orientation/FIRST_PROGRAM.md)**, at “Ask Cargo to create the project.” It explains the file creation, editor steps, and run command.
 
-```bash
-make run
-make verify
-```
-
-The program prints `Readings above 25: 1`. The verification command checks complete code and compiles the exercise scaffold without running its unfinished assertions. Build and test output will contain additional lines; exact compiler timings are not part of the lesson.
-
-Now open **[Lesson 00](../host/lessons/00-rust-orientation/README.md)**. You have finished setup; the lesson explains the code you are running.
+You do not need to run `make verify` or understand the repository's library layout before writing Hello World. Those are introduced after the first program and tests.
 
 ## When a command does not work
 
 | Symptom | What to check |
 |---|---|
-| `cargo` or `rustup` is not found | Open a new terminal, or run `. "$HOME/.cargo/env"`. Do not install a second Rust distribution just to repair `PATH`. |
+| `cargo` or `rustup` is not found | Open a new terminal, or run `. "$HOME/.cargo/env"`. Do not install a second Rust distribution just to repair the command search path. |
 | A linker or `cc` is missing | Check that `build-essential` installed successfully. |
-| `could not find Cargo.toml` at the repository root | Use `make run`, or change into the lesson directory before using Cargo. The root intentionally is not a Cargo workspace. |
+| Cargo cannot find `Cargo.toml` at the repository root | The root is not a Cargo project. The walkthrough creates your own project and tells you when to enter it. |
 | Another Rust version appears | Run `rustup show`; inspect existing directory or `RUSTUP_TOOLCHAIN` overrides before changing them. |
-| Rust tries to download tools despite `--offline` | Cargo's offline flag controls dependency access. The rustup toolchain must already be installed. |
-| `make exercise` fails | Exercise assertion failures are initially expected. Missing tools or compilation errors are different problems. Read the named failing test. |
+| A tool download is attempted during an offline command | Cargo's offline option controls dependencies, not installation of a missing compiler. Install the toolchain first. |
+| The expected lesson files are missing | Check the branch or ZIP download; the implementation has not yet been merged into `main`. |
 
 ## macOS and native Windows
 
-These are secondary paths, not verified platforms for this batch. The lesson shows direct Cargo commands that do not require Make. macOS needs its normal command-line build tools; native Windows needs a compatible Rust linker toolchain. For a documented Windows path, use WSL rather than adapting every shell command. Do not interpret these notes as evidence of testing on either platform.
+These remain secondary, unverified paths for this batch. Ordinary Cargo commands are similar, but the shell and linker setup may differ. macOS needs its usual command-line build tools; native Windows needs a compatible Rust linker toolchain. Use the documented WSL path on Windows instead of assuming every Linux shell command works in PowerShell.

@@ -1,32 +1,39 @@
 # Exercise — Include the boundary
 
-The original worked example answers “Is this reading strictly above the limit?” A new requirement says: **A reading qualifies when it is at or above the supplied limit.**
+[Lesson 00](README.md) · Before this exercise: [Part 4 — First tests](FIRST_TESTS.md)
 
-For `[18, 22, 25, 29]` and a limit of `25`, the new count must be **2**, not 1. Predict the answer for a reading of `-5` and a limit of `-5` as well.
+The original worked example asks whether a reading is **strictly above** a limit. A new requirement says: **a reading qualifies when it is at or above the supplied limit**.
 
-## Work in the exercise, not the example
+For `[18, 22, 25, 29]` and a limit of 25, the new count must be **2**, not 1. Predict the result for a reading of -5 and a limit of -5 as well.
 
-From the Lesson 00 directory:
+## 1. Open the exercise project
 
-```bash
-make exercise
-```
+Leave your practice program and the supplied example intact. The exercise has its own Cargo package and source file.
 
-This prints the selected exercise package and runs its tests. It initially fails four equality-sensitive tests. That is the expected starting point, not a broken installation. A compiler error, missing tool, or lockfile error is not the expected failure.
-
-The Cargo equivalent, from the **repository root**, is:
+If you finished Part 4 in `host/lessons/00-rust-orientation`, return to the repository root:
 
 ```bash
-cargo test --manifest-path exercises/00-rust-orientation/Cargo.toml --locked --offline
+cd ../../..
 ```
 
-Edit [`exercises/00-rust-orientation/src/lib.rs`](../../../exercises/00-rust-orientation/src/lib.rs). The function is already named `is_at_or_above_limit`, but its implementation still follows the old requirement. Correct the implementation; do not change the function signature or weaken the supplied acceptance tests.
+**From the repository root**, enter the exercise:
 
-The two standalone packages both expose a library named `threshold_rule`, allowing them to use identical acceptance-test files. Their package names and printed command labels remain different. A passing solution test is not a passing test of your exercise.
+```bash
+cd exercises/00-rust-orientation
+cargo test
+```
 
-## Add your own tests
+These tests initially fail **four equality-sensitive checks**. That is the expected starting point. A missing compiler, a missing file, or a compilation error is not the intended failure.
 
-Create `tests/your_cases.rs` **inside the exercise package**, beside `tests/acceptance.rs`. Start with this ordinary passing example and add your own below/equal/above cases using a different limit:
+In your editor, open `exercises/00-rust-orientation/src/lib.rs`. This is a library, so it does not have a `main` function. Cargo's test runner calls its function from the tests. The file already contains `pub fn is_at_or_above_limit(...)`: the name matches the new requirement, but its implementation still uses the old rule.
+
+Correct the comparison. Save the file and run `cargo test` again **from the exercise directory**. Do not rename the function or change the supplied acceptance tests to make an incorrect implementation pass.
+
+## 2. Add tests of your own
+
+In your editor, create a new file named **`your_cases.rs` inside this exercise's `tests` directory**, beside `acceptance.rs`. Its full repository path is `exercises/00-rust-orientation/tests/your_cases.rs`.
+
+Start with this entire file:
 
 ```rust
 use threshold_rule::is_at_or_above_limit;
@@ -37,28 +44,34 @@ fn excludes_a_cold_reading_below_the_limit() {
 }
 ```
 
-Use names that describe the behavior, not `test1`. Add at least one equality assertion. Leave `tests/acceptance.rs` unchanged: it represents the supplied requirements. Your new test file is automatically discovered by Cargo.
+The `use` line imports the function from the exercise library, named `threshold_rule` in this package's `Cargo.toml`. The `::` separates the library name from the function name. That is the same idea introduced at the end of Part 4, not another language feature you need to guess.
 
-Run `make exercise` again from the lesson directory, or `make test` from the exercise directory. Run it after **your** edit, not merely after opening the solution.
+Save, and add your own equal and above cases using -10 as the limit. Keep the supplied `acceptance.rs` unchanged; your new file is where your additional cases belong. Cargo discovers `.rs` test files in `tests/` automatically.
 
-## Completion checklist
+Run `cargo test` after your edits. Use names that communicate behavior, not `test1`. A passing test of the supplied solution is not a passing test of your work.
+
+## 3. Check the result and explain it
 
 | Requirement | Evidence |
 |---|---|
-| Below the limit does not qualify | A passing assertion with a below-boundary input |
-| Equality qualifies | A passing assertion with equal input and limit |
-| Above the limit qualifies | A passing assertion with an above-boundary input |
-| The actual parameter is used | The supplied non-25-limit test passes |
-| Negative values follow the same ordering | The supplied negative-reading test and your added case pass |
-| The sample now has two qualifying readings | The supplied sample-count assertion passes |
-| You can explain the fix | Describe the behavioral difference without reading the solution |
+| Below the limit does not qualify | Passing below-boundary assertions |
+| Equality qualifies | A passing equality assertion, including your own case |
+| Above the limit qualifies | Passing above-boundary assertions |
+| The supplied limit is actually used | The non-25-limit test passes |
+| Negative readings follow the same rule | The supplied negative test and your new cases pass |
+| Two sample readings now qualify | The supplied count assertion passes |
+| You understand the change | Explain why the new rule differs from the original without reading the solution |
 
-From the exercise directory, finish with:
+From the exercise directory, an optional final quality check is:
 
 ```bash
 make verify
 ```
 
-Here `make verify` checks **your exercise**, including its assertions. By contrast, root `make verify` checks the course's complete code and only compiles the exercise. The location matters, and each test command prints which package it selected.
+This checks **your exercise**, including formatting, linting, and its assertions. Use `make fmt` here to fix formatting when requested; it rewrites formatting, not the intended behavior. The underlying tests still run with `cargo test`.
 
-Need a nudge? Open [HINTS.md](HINTS.md). The [solution discussion](SOLUTION.md) is separate so you can choose when to reveal it.
+The reference and solution are separate packages. Both the exercise and solution use the library name `threshold_rule` so they can share identical acceptance-test requirements, but their Cargo package names are different. Read the command output to see which one you tested.
+
+You can also run `make exercise` from the **lesson directory** as a shortcut for testing this exercise. You do not need that shortcut to finish the work above.
+
+Need help? Read the [gradual hints](HINTS.md), then the [explained solution](SOLUTION.md) when you are ready. The purpose is to make a change you can explain, not just obtain green test results.

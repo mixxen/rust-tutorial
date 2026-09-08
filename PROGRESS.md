@@ -1,50 +1,58 @@
 # Implementation progress
 
-## Phase 1 — first batch: setup and Lesson 00
+## Phase 1 — Lesson 00 revised after learner feedback
 
-**First batch implemented; automated Linux and Docker checks passed. Phase 1 remains in progress.** Lesson 01 has not started. This file is the live status record; the curriculum and implementation plan retain their original planning snapshot.
+**Lesson 00 has been rewritten; verification of this revision is pending. Phase 1 remains in progress.** The previous version passed automated Linux/Docker checks, but the first learner trial exposed missing instruction. Passing checks did not establish teaching readiness.
 
-| Lesson / task | Writing and implementation | Host checks | Firmware build | Board execution |
-|---|---|---|---|---|
-| 00 — Rust orientation | Implemented; ready for learner review | Passed on GitHub-hosted Linux and in Docker | Not applicable | Not applicable |
-| Linux setup and Docker configuration | Implemented | Checkout/toolchain checks and Docker CLI run passed; fresh desktop installation not observed | Not applicable | Not applicable |
-| WSL guide and VS Code development-container configuration | Implemented | Interactive WSL and editor setup not tested | Not applicable | Not applicable |
-| 01 — Toolchain and Cargo | Planned | Not run | Not applicable | Not applicable |
-| Early H723ZG check | Deferred to a separate small batch | Not run | Not run | Needs board access and verification |
+Alex downloaded and tried the first version, then reported that it assumed Rust knowledge he did not have: what Cargo is, how to create a main file, how to write Hello World, and how function syntax works. This is actual learner feedback, not a hypothetical review. No claim is made that the revised version has completed a learner trial.
 
-## Recorded verification — September 8, 2026
+| Lesson / task | Current state |
+|---|---|
+| 00 — opening walkthrough | Rewritten as four ordered parts: first program, functions/variables, readings/control flow, first tests/course layout |
+| Reference example and acceptance exercise | Existing behavior preserved; exercise instructions rewritten with Cargo-first steps |
+| New walkthrough checks | Added: fresh `cargo new`, ten complete printed programs, direct `rustc`, intentional compiler errors, test failure and repair; awaiting execution evidence |
+| Linux and Docker entry instructions | Now lead to Hello World rather than requiring Make or library knowledge first |
+| WSL and VS Code interactions | Not newly tested; do not infer them from a Docker command-line result |
+| 01 — Toolchain and Cargo | Not implemented; deepen the basics now introduced in 00 |
+| Early H723ZG check | Still separate; no firmware build or board execution claimed |
+
+### Scope clarification from the learner trial
+
+Keep the approved lesson IDs and course count. Lesson 00 now includes essential Cargo/project creation and a gradual explanation of functions; these are not deferred prerequisites supplied by Lesson 01. The original short orientation duration is no longer a constraint: the four parts offer natural stopping points. `CURRICULUM.md` and `IMPLEMENTATION_PLAN.md` retain their original planning snapshot; this record and the implemented Lesson 00 describe the revised opening.
+
+The ordinary walkthrough stays in one learner-created `src/main.rs` until after the first tests. Only then does it explain `pub`, `use`, `src/lib.rs`, and the supplied course structure. The explicit-return example precedes the final-expression shorthand. Make is a later convenience, not an unexplained first command.
+
+### Revision verification plan
+
+`make verify` now includes `scripts/check_walkthrough.py`. The checker compares displayed complete programs with their source copies, creates a temporary Cargo project with the pinned toolchain, builds/runs every step, checks the direct compiler path, and verifies specific failures and repairs. It never accesses the learner's `practice/` project. Git ignores that directory, and repository Markdown checks exclude it.
+
+Actual results must be recorded after the new GitHub-hosted Linux and Docker jobs complete. The authoring sandbox has neither Rust nor Docker available and cannot resolve the GitHub host for a local clone. No local Rust or Docker execution is claimed.
+
+## Historical verification — initial implementation
 
 **Tested implementation commit:** `db2afb082b907e999267873dfd15f1982f82f9c5`.
 
-**Evidence:** [GitHub Actions run 34274526377](https://github.com/mixxen/rust-tutorial/actions/runs/34274526377), completed successfully. Both the `linux` and `docker` jobs passed. The author inspected their step results rather than inferring success from the presence of a workflow. This evidence refers to the named implementation revision; this subsequent record update changes documentation and a help description only.
+**Evidence:** [GitHub Actions run 34274526377](https://github.com/mixxen/rust-tutorial/actions/runs/34274526377), completed successfully. Both the `linux` and `docker` jobs passed. A subsequent documentation update at `f4a3879262aef088244b87d0b661444a7fd040d4` also passed [run 34274757606](https://github.com/mixxen/rust-tutorial/actions/runs/34274757606). These are historical results, not verification of the new walkthrough.
 
-The Linux job used a fresh checkout on a GitHub-hosted Ubuntu 24.04 runner and explicitly installed the pinned Rust toolchain. The Docker job built `.devcontainer/Dockerfile` and ran the checks as a non-root user with `--network none`. Build-time downloads were allowed; runtime dependency access was not needed.
+The Linux job used a fresh GitHub-hosted Ubuntu 24.04 checkout and installed the pinned Rust toolchain. Docker built the development image and ran as a non-root user with `--network none`; build-time downloads were allowed.
 
-| Check | Observed result |
+| Initial check | Observed result |
 |---|---|
 | Reference tests | Four library tests and one executable-output test passed |
-| Complete solution | All six acceptance tests passed |
+| Complete solution | Six acceptance tests passed |
 | Formatting and Clippy | Passed for the complete reference and solution code |
-| Exercise scaffolding | Compiled without requiring the learner's unfinished assertions to pass |
-| Deliberate compiler errors | All three produced their intended error code; all three repaired examples built and ran with the specified output |
+| Exercise scaffolding | Compiled without requiring unfinished assertions to pass |
+| Isolated compiler errors | Three intended error codes confirmed; three repairs built and ran |
 | C++ / Python / Rust comparison | All three printed `Readings above 25: 1` |
-| Temporary exercise baseline | Exactly the four intended equality-sensitive tests failed; substituting the complete solution passed the identical six-test suite |
-| Documentation / repository checks | Local Markdown link paths, acceptance-test parity, and lockfile presence passed |
-| Lesson-local commands | `run`, `verify`, and `solution` passed from the lesson directory |
-| Tracked-file changes after verification | None, in either CI job |
+| Temporary exercise baseline | Four intended equality-sensitive failures; the solution passed the identical six-test suite |
+| Documentation / repository checks | Local link paths, acceptance-test parity, and lockfile presence passed |
+| Lesson-local commands | `run`, `verify`, and `solution` passed |
+| Tracked-file changes after verification | None in either job |
 
-An initial run found a bug in the author-only exercise checker: copying the solution while preserving an old file timestamp allowed Cargo to reuse the intentionally failing build. The fix writes the replacement source and uses separate build directories for the baseline and solution. The acceptance assertions were not weakened. The recorded successful run includes that fix.
+An initial run found stale-build reuse in the author-only exercise checker when copied sources preserved timestamps. Writing replacement source and using independent build directories fixed it. No acceptance assertions were weakened. The new walkthrough checker follows the same independent-output approach.
 
-The authoring sandbox itself has no Rust compiler or Docker and could not download the toolchain. The execution evidence above comes from the actual GitHub-hosted runs, not from claimed local execution.
+## Remaining limits and next step
 
-## What this does not establish
+A fresh interactive desktop installation, WSL, VS Code's container UI, macOS, native Windows, and physical hardware have not been verified here. There is no code-coverage measurement or embedded execution claim. The local-link checker does not validate external sites or Markdown heading anchors.
 
-Interactive WSL installation, a fresh desktop Rust installation, VS Code's development-container UI, macOS, native Windows, and physical-board access have not been tested in this batch. The Docker CLI result does not stand in for those interactions. No coverage measurement, firmware build, or board execution is claimed. External website availability and Markdown heading anchors are not checked by the local-link script.
-
-## Teaching review
-
-The walkthrough explains punctuation beside its first use, uses names such as `reading` and `qualifying_count`, keeps the C++/Python task consistent, and separates hints from the answer. Author review is complete for this batch. Alex's actual learning feedback and a fresh-reader walkthrough are still pending; they are not implied by passing automated tests.
-
-## Next small task
-
-Implement Lesson 01: explain the tools just used and create a small package from scratch. Preserve the Lesson 00 example and its command behavior. The early board check remains separate and must record firmware build results separately from observed board behavior.
+The revised first experience needs another learner walkthrough before expanding the teaching pattern. Lesson 01 remains the next new lesson, not work completed by this revision. The early board check remains separate and must record build results separately from observed board behavior.

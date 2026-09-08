@@ -5,6 +5,9 @@
 *.pdb
 **/mutants.out*/
 
+# Learner-owned experiments are not course source or verification input.
+/practice/
+
 # Local generated reports and editor/OS files.
 /reports/
 __pycache__/

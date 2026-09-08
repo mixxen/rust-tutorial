@@ -29,4 +29,5 @@ if [[ "$mode" == verify ]]; then
     cargo check --manifest-path exercises/00-rust-orientation/Cargo.toml --all-targets --locked --offline
     python3 scripts/check_repository.py
     python3 scripts/check_expected_errors.py
+    python3 scripts/check_walkthrough.py
 fi
