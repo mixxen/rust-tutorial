@@ -50,12 +50,13 @@ If you are reviewing an implementation pull request, switch to its branch before
 From the repository root:
 
 ```bash
+rustup toolchain install 1.90.0 --profile minimal --component rustfmt --component clippy
 rustup show
 rustc --version
 cargo --version
 ```
 
-`rustup show` resolves the repository's selected toolchain and installs missing components. The expected Rust release for this batch is **1.90.0**, not whichever release happens to be newest. [Tool versions](tool-versions.md) explains this choice.
+The installation command requests the compiler and the formatter/linter used by the repository. `rustup show` then displays the active choice. The expected Rust release for this batch is **1.90.0**, not whichever release happens to be newest. [Tool versions](tool-versions.md) explains this choice. Installing a named toolchain does not replace an existing global default.
 
 ## 4. Run the first program and the checks
 
