@@ -1,0 +1,64 @@
+name: Host lessons
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: host-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install the repository's Rust toolchain explicitly
+        run: |
+          toolchain=$(sed -n 's/^channel = "\(.*\)"$/\1/p' rust-toolchain.toml)
+          test -n "$toolchain"
+          rustup toolchain install "$toolchain" --profile minimal --component rustfmt --component clippy
+          rustup show
+      - name: Record tools
+        run: |
+          rustc --version --verbose
+          cargo --version
+          python3 --version
+          g++ --version
+      - name: Verify complete code and exercise scaffolding
+        run: make verify
+      - name: Check all three language examples
+        run: make comparisons
+      - name: Check intentional exercise failures in a temporary copy
+        run: python3 scripts/check_exercise_baseline.py
+      - name: Check documented lesson-local commands
+        run: |
+          make -C host/lessons/00-rust-orientation run
+          make -C host/lessons/00-rust-orientation verify
+          make -C host/lessons/00-rust-orientation solution
+      - name: Checks must not rewrite tracked files
+        run: git diff --exit-code
+
+  docker:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build the learning image
+        run: |
+          docker build --build-arg USER_UID="$(id -u)" --build-arg USER_GID="$(id -g)" -t rust-tutorial:phase-1 -f .devcontainer/Dockerfile .
+      - name: Check as a non-root user without runtime network access
+        run: |
+          docker run --rm --network none --mount type=bind,source="$PWD",target=/workspace --workdir /workspace rust-tutorial:phase-1 bash -c 'test "$(id -u)" -ne 0 && make verify && make comparisons && python3 scripts/check_exercise_baseline.py'
+      - name: Checks must not rewrite tracked files
+        run: git diff --exit-code

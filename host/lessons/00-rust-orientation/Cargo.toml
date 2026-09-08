@@ -1,0 +1,8 @@
+[package]
+name = "lesson-00-rust-orientation"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.90"
+publish = false
+license = "MIT"
+description = "A first Rust program for experienced C++ and Python programmers"
