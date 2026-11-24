@@ -1,6 +1,6 @@
 # Implementation plan: Rust for Experienced Programmers
 
-**Status:** Planning only. Implementation phases have not started. Creating this plan and the repository landing page does not complete Phase 1.
+**Status:** Phase 1 is in progress. See [Progress](PROGRESS.md) for implementation and verification results.
 
 **Scope:** Implement the approved [curriculum](CURRICULUM.md): 27 general Rust lessons (00–26), 14 Embassy lessons (E01–E14), and six optional extensions. Keep existing lesson numbers and topics.
 
@@ -14,7 +14,7 @@ The curriculum describes **what to teach**. This plan describes **the order in w
 
 Work through one phase at a time. A phase is not a single large generation task or pull request. Within a phase, normally complete one lesson per change; two closely related, small lessons may share a change. Ownership, lifetimes, async, unsafe code, DMA, and each capstone deserve separate changes. A pull request is a proposed change that can be reviewed before merging into the main branch.
 
-For each lesson, finish the explanation, runnable example, exercise, hints, solution, and checks together. Do not write all the code first and leave the teaching for a later pass. Do not create dozens of empty packages to make the repository look complete.
+Write the explanation alongside the runnable example and its checks. When a lesson has an exercise, include its instructions, hints, and explained solution in the same change. Add packages as you write the lessons they belong to.
 
 When a lesson grows too large, divide its walkthrough into smaller steps or put the extra material in an optional section. Do not cram advanced prerequisites into an introductory lesson. Preserve its lesson number unless a curriculum change is explicitly agreed.
 
@@ -30,7 +30,7 @@ Use ordinary words first, followed by the technical name when it helps. For exam
 
 Assume programming experience, not Rust fluency. Avoid both a lengthy introduction to what a loop is and an unexplained chain of Rust punctuation. Early lessons should have a small “New syntax in this example” box. Mark supplied test or startup code that will be explained later.
 
-Compare C++, Python, and Rust fairly. State where an analogy stops working. Do not present Rust as automatically correct because it compiles, or suggest that modern C++ has no automatic resource management. Comparisons must use the same inputs and behavior, and should be checked when authored.
+Compare C++, Python, and Rust with matching inputs and behavior. Explain where the language rules differ. Put short comparisons next to the Rust example. Use `COMPARISON.md` when complete programs are worth reading together, and check their output when you write them.
 
 Each lesson should help the learner answer: **What does it do? Why is it written this way? What can I change? How will I know the change works?**
 
@@ -71,15 +71,15 @@ AI review exercises come after the concept they assess. Ask the learner to predi
 
 ## 3. Shared repository decisions
 
-Retain the architecture in the curriculum: a `host/` Cargo workspace and a separate `embedded/` workspace, with a package and small Makefile for each lesson. A workspace is a group of packages managed together; Cargo documents its shared lockfile and build directory. [S1]
+Use a `host/` Cargo workspace and a separate `embedded/` workspace, as described in the curriculum. Host lesson packages live directly under `host/`. A workspace is a group of packages managed together with a shared lockfile and build directory. [S1]
 
-The Makefiles are convenient shortcuts, not another build system to learn. Lesson READMEs show the equivalent Cargo command and the directory from which to run it. Target-specific board settings must not affect ordinary host lessons. Cargo configuration lookup depends on the invocation directory; test root and lesson-local commands rather than assuming `--manifest-path` discovers every nested setting. [S2]
+Lesson READMEs show the Cargo command and the directory from which to run it. Keep Make shortcuts small. Target-specific board settings must not affect ordinary host lessons. Cargo configuration lookup depends on the invocation directory. Verify both root and lesson-local commands when configuration matters. [S2]
 
-Keep worked examples, unfinished exercise packages, and full solution packages separate. Regular verification checks complete examples and solutions. Exercise commands identify the exact package they test. Starter packages should normally compile and fail only the documented exercise assertions; deliberate compiler-error exercises are isolated and clearly labeled.
+When a lesson has an exercise, keep its starter and solution packages separate from the worked example. Regular verification checks complete examples and solutions. Exercise commands identify the package they test. Starter packages should compile and fail on the documented assertions. Isolate and label deliberate compiler errors.
 
 A fresh checkout must not look broken because unfinished exercises are included in ordinary checks. Conversely, a command testing a solution must not be presented as proof that the learner's exercise passed. Give starter and solution acceptance tests the same behavioral requirements, and check for accidental differences.
 
-Pin the actual Rust toolchain and dependency/tool versions after a working combination is tested. Preserve the curriculum's Rust 2024 edition policy. Commit applicable lockfiles and keep version choices in one documented place. Avoid selecting versions from memory or following moving development branches.
+The host course uses Rust `1.90.0` and the 2024 edition. Verify a working combination before pinning additional tools or dependencies. Commit applicable lockfiles and record tool versions in one place. [Tool versions](docs/tool-versions.md)
 
 Linux and WSL are the primary interactive environments. Docker supports reproducible compilation and host-side checks; hardware flashing may run from Linux or WSL outside the container. Add macOS/native Windows checks only when they remain small. An untested environment is described as untested, not supported by assumption.
 
@@ -87,7 +87,7 @@ Root `make verify` must never flash hardware or modify source files. Formatting 
 
 ## 4. Phase overview
 
-All implementation phases below are **not started** when this plan is introduced. Lesson ranges are inclusive. Phase numbers describe development work, not new lesson numbers.
+Lesson ranges are inclusive. For the current implementation and check results, see the progress log. [Progress](PROGRESS.md)
 
 | Phase | Deliverable | Lessons | Suggested small batches |
 |---|---|---|---|
@@ -123,13 +123,13 @@ Host phases can proceed while USB or board setup is unresolved. However, depende
 
 ### Phase 1 — Make the first experience work
 
-**Build:** Linux/WSL setup notes, a small development container, the host workspace, per-lesson command wrappers, the lesson template, and minimal GitHub Actions checks. GitHub Actions will run automated checks when changes are proposed or committed; introduce that purpose without requiring learners to understand workflow configuration yet.
+**Build:** Linux/WSL setup notes, a small development container, the host workspace, the lesson template, and basic GitHub Actions checks.
 
-Implement Lesson 00 completely: the same threshold task in C++, Python, and Rust; a syntax guide; an ordinary runnable Rust example; the separate inclusive-threshold exercise; boundary tests; progressive hints; and an explained solution. The extra C++ compiler is an authoring check, not a learner prerequisite for the Rust lesson.
+Keep Lesson 00 focused on runnable examples. Create Hello World with Cargo and build up to the readings program in the same `src/main.rs`. Supply matching C++ and Python examples for comparison. The C++ compiler is needed for the author comparison check.
 
-Then implement Lesson 01: explain the tools just used and create a tiny package from scratch. Audit `.gitignore` so intended lockfiles are retained and build outputs stay untracked. Add the minimum contributor instructions and review template needed to preserve these conventions. No empty future lesson packages or nonfunctional commands.
+In Lesson 01, create a tiny unit converter from a blank package and introduce `cargo test`. Put the program and its first tests in `src/main.rs`. Show a compiler error and a failing assertion in separate steps, then repair each. Lesson 08 teaches how to split a program into a library and an executable.
 
-**Finish line:** From a clean checkout in a recorded primary environment, the supplied setup, run, test, lint, and verification steps work. The reference and solution pass; the untouched exercise fails for the documented reason. The learner can tell which package ran. Formatting checks do not rewrite files. Docker checks have a recorded result or an explicit unresolved issue; Phase 1 is not complete with required checks merely assumed.
+**Finish line:** From a clean checkout in a recorded primary environment, the setup, run, lint, and verification steps work. The printed Lesson 00 programs build and run in a fresh project. Record the Lesson 01 test and exercise results once that lesson is implemented. Record Docker check results and any unresolved issues.
 
 **Teaching checkpoint:** Read Lesson 00 from start to finish before expanding the template. Invite early learner feedback on confusing words, unexplained punctuation, and naming. Record actual feedback separately from an author's own walkthrough. The early board check has its own evidence status and does not hold up the host lesson pilot.
 
@@ -273,9 +273,9 @@ Choose extensions based on learner feedback, not to increase the lesson count. D
 
 Each selected extension gets the same complete explanation/example/exercise/solution/check cycle. New hardware or toolchain requirements stay explicit and optional. Do not begin all six at once, or make a later extension a hidden dependency of the core lessons.
 
-## 6. What every lesson must deliver
+## 6. What to check in each lesson
 
-The package layout and command names remain those defined in the curriculum. This checklist is a review aid, not a requirement to create empty files where a section is genuinely unnecessary.
+Use the curriculum's layout and command guidance. Review the items that apply to the lesson.
 
 | Item | What a reviewer checks |
 |---|---|
@@ -283,15 +283,14 @@ The package layout and command names remain those defined in the curriculum. Thi
 | Explanation | New vocabulary and notation are explained at the point of use. |
 | Worked example | Small, complete, and runnable; expected output or behavior is described. |
 | Commands | Working directory, prerequisites, and selected package are clear. |
-| Exercise | A meaningful change with observable acceptance criteria; distinct from the example. |
-| Hints | Gradual help that does not reveal the full answer immediately. |
-| Solution | Complete code, reasoning, and a relevant alternative or tradeoff. |
-| Tests | Normal behavior plus relevant boundaries/failures; intentional failures are isolated. |
+| Exercise, where supplied | A change the learner can make and check through observable behavior. |
+| Hints and solution, where supplied | Gradual hints and a separate answer that explains the code and a relevant tradeoff. |
+| Tests, from Lesson 01 | Normal behavior and relevant boundary or failure cases. Isolate intentional failures. |
 | Code review | Names are deliberate, comments explain decisions, and unnecessary machinery is removed. |
 | Verification record | Actual commands/results, revision and environment; unrun checks are named. |
 | Navigation | A clear way to start, find help, and continue; only existing lessons are linked as runnable. |
 
-A practical authoring sequence is: write the learning outcome, draft the small example, write behavior-focused tests, build the exercise and solution, write the walkthrough around them, then run a clean-checkout review. Iterate between code and prose instead of treating either as final too early.
+Start with the outcome and worked example. Develop the walkthrough alongside the code. Add tests and exercise material when the lesson calls for them, then follow the instructions from a fresh checkout.
 
 When a shared template, dependency, or Makefile changes, test earlier affected lessons as well as the newest one. Fix a confusing pattern at its source, not by copying it into the next lesson.
 
@@ -299,7 +298,8 @@ When a shared template, dependency, or Makefile changes, test earlier affected l
 
 | Stage | Required evidence |
 |---|---|
-| First host lesson onward | Build, tests, formatting check, selected Clippy checks, and working documented commands. |
+| Lesson 00 | Run the examples, check formatting and selected Clippy lints, and verify the instructions in a new Cargo project. |
+| Lesson 01 onward | Tests for the behavior introduced in each lesson, plus the checks above. |
 | Public APIs and documentation | Integration/documentation checks and purposeful compile-failure examples as introduced. |
 | Testing phase onward | Scoped coverage, assertion-quality review, and generated-input tests where appropriate. |
 | Host capstone | Executable-level acceptance tests, deterministic fixtures, and a short result report. |
@@ -337,7 +337,7 @@ Do not mark work complete because the files exist or the text sounds polished. D
 
 ## 9. First implementation request
 
-The first bounded task is **Phase 1, first batch: setup plus Lesson 00**. Deliver the minimum working host setup, the complete orientation package, its separate exercise and solution, tests, readable walkthrough, and basic CI. Verify that starting experience before adding Lesson 01 or broadening the template.
+The first bounded task is **Phase 1, first batch: setup plus Lesson 00**. Deliver the minimum working host setup, the runnable orientation examples, a readable walkthrough, and basic CI. Verify that starting experience before adding Lesson 01.
 
 The early board check remains a separately tracked engineering task. The rest of the curriculum stays planned, not represented by empty packages or misleading completion badges.
 

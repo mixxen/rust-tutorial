@@ -1,0 +1,12 @@
+{
+  "name": "Rust tutorial (host lessons)",
+  "build": { "dockerfile": "Dockerfile", "context": ".." },
+  "remoteUser": "learner",
+  "customizations": {
+    "vscode": {
+      "extensions": ["rust-lang.rust-analyzer"],
+      "settings": { "rust-analyzer.linkedProjects": ["host/Cargo.toml"] }
+    }
+  },
+  "postCreateCommand": "make verify"
+}
