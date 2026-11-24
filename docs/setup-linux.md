@@ -1,31 +1,27 @@
 # Set up on Linux
 
-This guide installs the tools. **[Lesson 00, Part 1](../host/lessons/00-rust-orientation/FIRST_PROGRAM.md)** explains what they do and then teaches how to create and run your first program. You do not need to understand Cargo before reading the lesson's introduction.
+Use these commands on Ubuntu 24.04 or a comparable Debian-based distribution. Setup needs internet access. After setup, you can build Lesson 00 offline. [Windows with WSL](setup-wsl.md) · [Docker](docker.md)
 
-Briefly: `rustc` compiles Rust, Cargo manages building and running a project, and `rustup` installs and selects their versions. A compiler release and its related tools are called a toolchain.
+## 1. Install the Linux packages
 
-The commands below target Ubuntu 24.04 or a comparable Debian-based distribution. Initial installation needs internet access; Lesson 00 itself has no external Rust dependencies. For Windows, use [WSL setup](setup-wsl.md). For an isolated environment, use [Docker](docker.md). No board or embedded tools are needed yet.
-
-## 1. Install the operating-system tools
-
-In a terminal:
+Run these commands in your terminal.
 
 ```bash
 sudo apt-get update
 sudo apt-get install -y build-essential curl ca-certificates git python3 less
 ```
 
-`build-essential` supplies Make, a C/C++ toolchain, and the system support needed for linking. The C++ compiler is used only by the optional three-language comparison check, not the Rust walkthrough. Python 3.10 or newer runs the repository checks; no Python packages need installing.
+`build-essential` includes the linker Rust uses to produce an executable. It also includes Make and the C++ compiler used for the comparison. The repository checks use Python 3.10 or newer.
 
-## 2. Install rustup, unless you already have it
+## 2. Check for rustup
 
-Check first:
+`rustup` installs and selects Rust toolchains. Check whether it's already installed.
 
 ```bash
 rustup --version
 ```
 
-If that command is missing, download the official installer so you can inspect it before running it:
+If `rustup` is already installed, go to step 3. Otherwise, download and read the installer using the first two commands. Press `q` to leave `less`, then run the last two commands.
 
 ```bash
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o /tmp/rustup-install.sh
@@ -34,49 +30,55 @@ sh /tmp/rustup-install.sh -y --profile minimal --default-toolchain none
 . "$HOME/.cargo/env"
 ```
 
-Press `q` to leave `less`. The installer comes from the [official Rust installation service](https://www.rust-lang.org/tools/install). Do not run it with `sudo`.
+Run the installer as your own user. The `--default-toolchain none` option leaves your global toolchain selection alone. The tutorial chooses its own Rust release through `rust-toolchain.toml`. [Official Rust installer](https://www.rust-lang.org/tools/install)
 
-This installation does not select a new global Rust default. The repository's `rust-toolchain.toml` chooses its own release. [Rustup's selection rules](https://rust-lang.github.io/rustup/overrides.html) explain existing environment or directory overrides that may affect it.
+## 3. Open the tutorial and install Rust
 
-## 3. Open the tutorial and install its selected tools
-
-Use your existing checkout or extracted download. For a new Git checkout of the implementation branch:
+Open your existing `main` checkout or clone a fresh copy.
 
 ```bash
-git clone --branch phase-1/orientation https://github.com/mixxen/rust-tutorial.git
+git clone --branch main https://github.com/mixxen/rust-tutorial.git
 cd rust-tutorial
 ```
 
-The implementation is currently proposed in pull request #1. A checkout of `main` alone does not yet contain the lesson. For a ZIP download, extract the `phase-1/orientation` branch and open its extracted top-level folder instead. The folder name can differ from `rust-tutorial`; look for `rust-toolchain.toml` and `host/` inside it.
+If you downloaded a ZIP of `main`, extract it and open the top-level folder containing `rust-toolchain.toml` and `host/`.
 
-From that repository root:
+From the repository root, install the Rust toolchain for this course.
 
 ```bash
 rustup toolchain install 1.90.0 --profile minimal --component rustfmt --component clippy
+```
+
+- `rustup toolchain install 1.90.0` installs a specific Rust release so you use the same version as the course examples.
+- `--profile minimal` installs the compiler `rustc`, Cargo, and the Rust standard library for your machine.
+- `--component rustfmt` adds the formatter. `cargo fmt` uses it to format Rust source files.
+- `--component clippy` adds a tool that flags common mistakes and suggests improvements. Run it with `cargo clippy`.
+
+Rustup reads `rust-toolchain.toml` to select this release when you're in the repository. Check the active toolchain and the versions of the compiler and Cargo.
+
+```bash
 rustup show
 rustc --version
 cargo --version
 ```
 
-The installation command requests the compiler plus formatting and lint tools. `rustup show` reports the active selection. The expected Rust release is **1.90.0**, not whatever happens to be newest. [Tool versions](tool-versions.md) explains this choice. Installing a named toolchain does not replace an existing global default.
+`rustc --version` and `cargo --version` should both report `1.90.0`. [Tool versions](tool-versions.md)
 
 ## 4. Begin with your own Hello World
 
-Setup is complete when the version commands succeed in this directory. Return to **[Lesson 00, Part 1](../host/lessons/00-rust-orientation/FIRST_PROGRAM.md)**, at “Ask Cargo to create the project.” It explains the file creation, editor steps, and run command.
-
-You do not need to run `make verify` or understand the repository's library layout before writing Hello World. Those are introduced after the first program and tests.
+Once the tools report the expected version, start Lesson 00 or return to where you paused. [Lesson 00, part 1](../host/00-rust-orientation/01-first-program.md)
 
 ## When a command does not work
 
 | Symptom | What to check |
 |---|---|
-| `cargo` or `rustup` is not found | Open a new terminal, or run `. "$HOME/.cargo/env"`. Do not install a second Rust distribution just to repair the command search path. |
-| A linker or `cc` is missing | Check that `build-essential` installed successfully. |
-| Cargo cannot find `Cargo.toml` at the repository root | The root is not a Cargo project. The walkthrough creates your own project and tells you when to enter it. |
-| Another Rust version appears | Run `rustup show`; inspect existing directory or `RUSTUP_TOOLCHAIN` overrides before changing them. |
-| A tool download is attempted during an offline command | Cargo's offline option controls dependencies, not installation of a missing compiler. Install the toolchain first. |
-| The expected lesson files are missing | Check the branch or ZIP download; the implementation has not yet been merged into `main`. |
+| The shell can't find `cargo` or `rustup` | Open a new terminal or run `. "$HOME/.cargo/env"`. |
+| The build can't find a linker or `cc` | Check that `build-essential` installed successfully. |
+| Cargo can't find `Cargo.toml` | Change to your `hello_rust` project directory before running `cargo run`. |
+| The version commands show a different release | Run `rustup show` and check for a directory override or a `RUSTUP_TOOLCHAIN` setting. |
+| Rustup tries to download the compiler during an offline build | Install the toolchain first. Cargo's `--offline` flag applies to dependencies. |
+| The tutorial files are missing | Check that you're in the top-level folder of your `main` checkout or ZIP. |
 
 ## macOS and native Windows
 
-These remain secondary, unverified paths for this batch. Ordinary Cargo commands are similar, but the shell and linker setup may differ. macOS needs its usual command-line build tools; native Windows needs a compatible Rust linker toolchain. Use the documented WSL path on Windows instead of assuming every Linux shell command works in PowerShell.
+On macOS, install the system command-line build tools. On Windows, follow the WSL setup to use the same terminal commands as this guide. [Windows with WSL](setup-wsl.md)

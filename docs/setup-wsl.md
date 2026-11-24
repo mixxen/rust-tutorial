@@ -1,38 +1,36 @@
 # Set up on Windows with WSL
 
-WSL runs a Linux environment on Windows. The tutorial's primary Windows path is **WSL 2 with Ubuntu**, so you can use the same commands as a Linux learner.
+Use WSL 2 with Ubuntu to run the tutorial's Linux commands on Windows.
 
 ## Install or inspect WSL
 
-For a new installation, open PowerShell as Administrator:
+For a new installation, run this command in PowerShell as Administrator.
 
 ```powershell
 wsl --install -d Ubuntu-24.04
 ```
 
-Follow the prompts, restart if requested, and create your Linux username and password. If WSL is already installed, inspect it instead of reinstalling:
+Follow the prompts, restart if asked, and create your Linux username and password. If you already use WSL, check your installed distributions with this command.
 
 ```powershell
 wsl --list --verbose
 ```
 
-Use Microsoft's [installation instructions](https://learn.microsoft.com/en-us/windows/wsl/install) for version requirements, updates, or converting an existing distribution to WSL 2. WSL installation depends on your Windows configuration and has not been interactively tested in this authoring session.
+For version requirements or help switching an existing distribution to WSL 2, see the installation guide. [Microsoft WSL installation guide](https://learn.microsoft.com/en-us/windows/wsl/install)
 
 ## Continue inside Ubuntu
 
-Open the Ubuntu terminal. The remaining setup commands belong there, **not in PowerShell**. Keep the checkout in the Linux home directory, for example:
+Open the Ubuntu terminal for the rest of setup. To keep the checkout in your Linux home directory, create a folder for it.
 
 ```bash
 mkdir -p ~/projects
 cd ~/projects
 ```
 
-Now follow [Linux setup](setup-linux.md). Use the Linux installation of Rust in WSL rather than mixing a Windows `cargo.exe` with Linux build tools.
+Follow the Linux guide in that terminal to clone `main` and install the Linux Rust tools. [Linux setup](setup-linux.md)
 
-VS Code is optional. Its WSL extension can open the Linux checkout; select the Rust Analyzer extension in that remote environment. A plain editor and terminal are sufficient.
+Any text editor works. If you use VS Code, open the checkout with its WSL extension and install Rust Analyzer in the WSL environment.
 
-## What about the board?
+## Board access
 
-Lesson 00 does not use the board. Leave USB setup out of the first learning session. Later board access needs an explicit USB attachment path; a device visible in Windows is not automatically available inside WSL. The later hardware setup must follow Microsoft's [USB connection guide](https://learn.microsoft.com/en-us/windows/wsl/connect-usb) and verify the actual NUCLEO-H723ZG connection.
-
-No WSL USB, probe, or board execution results are claimed by this Phase 1 host batch.
+You can complete Lesson 00 with your terminal and editor. For board work later in the course, attach the board's USB connection to WSL. [Microsoft WSL USB guide](https://learn.microsoft.com/en-us/windows/wsl/connect-usb)

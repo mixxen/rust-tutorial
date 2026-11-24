@@ -2,9 +2,9 @@
 
 ## Curriculum proposal for `mixxen/rust-tutorial`
 
-**Status:** Curriculum plan; no lesson implementations or hardware verification are implied.
+See the progress log for lessons and verification results. [Progress](PROGRESS.md)
 
-**Revision:** 2 — added Lesson 00, a hands-on syntax and C/C++/Python orientation. Existing lesson IDs are unchanged.
+**Revision 4.** Lesson 01 keeps the first tests in one source file. Files and checks are added as lessons need them.
 
 **Audience:** Experienced C, C++, and Python programmers who are new to writing Rust independently.
 
@@ -22,7 +22,7 @@ Teach programming concepts only where Rust changes the learner's existing mental
 
 Use a recurring device-and-telemetry theme without making every lesson depend on the previous lesson's implementation. Each lesson starts from a complete, known baseline. Learners should be able to revisit a lesson without rebuilding their earlier exercise solutions.
 
-The course starts with Lesson 00: a short, hands-on syntax tour that uses familiar C++ and Python examples to orient the learner before the detailed toolchain and language lessons. Testing starts in Lesson 00. Dedicated testing lessons deepen the practice rather than introduce it for the first time. Early lessons provide scaffolding for attributes and test syntax that will be explained more fully later.
+Lesson 00 starts with Hello World and builds up to a small readings program in one source file. C++ and Python versions provide familiar comparisons. Lesson 01 introduces tests as part of learning Cargo. Dedicated testing lessons deepen that practice.
 
 Selected lessons include a review of plausible but flawed AI-generated code. The normal learning sequence is: predict the behavior, attempt the exercise, read compiler/test feedback, then consult hints or AI. Correct code is not enough; learners must explain the relevant invariants and provide evidence for their claims.
 
@@ -40,8 +40,8 @@ By the end, a learner should be able to:
 
 | Area | Planned approach |
 |---|---|
-| Rust | Rust 2024 edition; pin an exact stable toolchain after bootstrap verification rather than continually tracking `stable`. |
-| Build tooling | Cargo is authoritative. Per-lesson Makefiles are thin wrappers, and lesson READMEs also show the underlying Cargo commands. |
+| Rust | Lessons use the Rust 2024 edition. The host course pins Rust `1.90.0` in `rust-toolchain.toml`. Record and verify toolchain changes when a lesson needs them. [Tool versions](docs/tool-versions.md) |
+| Build tooling | Lesson READMEs show Cargo commands. Makefiles provide thin wrappers where useful. |
 | Editor | Document VS Code with rust-analyzer as a convenient path; do not require an editor. |
 | Linux | Primary development, build, test, flash, and debug environment. |
 | WSL 2 | Primary Windows path. Document USB attachment, device permissions, and reconnect troubleshooting. |
@@ -63,6 +63,8 @@ Core board labs use onboard LEDs, the user button, timers, and the ST-LINK debug
 Use two deliberately separate Cargo workspaces: `host/` and `embedded/`. There is no root Cargo workspace; the root Makefile orchestrates explicitly selected checks.
 
 A Cargo workspace gives its members shared dependency resolution, a lockfile, and a build-output directory. [R6] Separating the host and firmware workspaces keeps the normal host test command away from board-only executables and chip-specific build settings.
+
+The tree shows the planned course layout. See the progress log for lesson status and verification. [Progress](PROGRESS.md)
 
 ```text
 rust-tutorial/
@@ -86,19 +88,15 @@ rust-tutorial/
 │   ├── nucleo-h723zg.md
 │   ├── hardware-testing.md
 │   └── ai-assisted-learning.md
-├── mk/
-│   ├── host.mk
-│   └── embedded.mk
 ├── scripts/                         # Small orchestration/check helpers
 ├── host/
 │   ├── Cargo.toml                   # Host reference workspace
 │   ├── Cargo.lock
-│   └── lessons/
-│       ├── 00-rust-orientation/
-│       ├── 01-toolchain-and-cargo/
-│       ├── 02-types-and-expressions/
-│       ├── ...
-│       └── 26-ci-and-reproducibility/
+│   ├── 00-rust-orientation/
+│   ├── 01-toolchain-and-cargo/
+│   ├── 02-types-and-expressions/
+│   ├── ...
+│   └── 26-ci-and-reproducibility/
 ├── embedded/
 │   ├── Cargo.toml                   # Firmware and portable-core packages
 │   ├── Cargo.lock
@@ -114,7 +112,7 @@ rust-tutorial/
 └── reports/                        # Generated output; ignored by Git
 ```
 
-Every lesson has its own primary Cargo package, `Cargo.toml`, README, Makefile, and runnable example. Packages use unique names such as `lesson-03-ownership` and `lesson-e04-embassy-tasks`.
+Every lesson has a primary Cargo package with a README and a runnable example. Packages use unique names such as `lesson-03-ownership-and-moves` and `lesson-e04-embassy-tasks`.
 
 More substantial embedded lessons may add a companion `core/` library package for shared host/target logic. Capstones may contain multiple cooperating packages, but each still has a single documented lesson entry point.
 
@@ -124,7 +122,7 @@ Portable embedded libraries are tested with an explicit host target and cross-co
 
 ### Worked examples, exercises, and solutions
 
-The primary lesson package is the small, complete worked example. It builds and passes its tests on a fresh checkout.
+The primary lesson package is the small, complete worked example. It builds on a fresh checkout. Lesson 00 consists of a walkthrough and runnable examples. Later lessons add exercises and tests as those topics are introduced.
 
 Exercises and full solutions are separate packages, outside the reference workspaces, with matching public acceptance-test contracts. Exercise tests are expected to fail until the learner finishes the task. They run only through an explicit exercise command, never as hidden failures in normal repository CI.
 
@@ -134,132 +132,81 @@ Avoid mutually exclusive `exercise` and `solution` Cargo features. Each command 
 
 ## 4. Standard lesson format
 
-A normal primary package looks like this:
+Start with a Cargo manifest, a README, and one source file. This layout is enough for an introductory program.
 
 ```text
-03-ownership/
+01-toolchain-and-cargo/
 ├── Cargo.toml
-├── Makefile
 ├── README.md
-├── EXERCISE.md
-├── HINTS.md
-├── SOLUTION.md
-├── src/
-│   ├── lib.rs
-│   └── main.rs                     # Or a small runnable example
-├── tests/                         # Where relevant
-│   └── public_api.rs
-└── fixtures/                      # Only when needed
+└── src/
+    └── main.rs
 ```
 
-Every README contains the objective, prerequisites, commands, explanation, runnable walkthrough, relevant C/C++/Python comparison, expected output, exercise, verification criteria, and a few review questions. Prefer explanations adjacent to code rather than extensive unexplained source listings.
+The README states the goal and prerequisites, links to the walkthrough, and shows where to run the example and what to expect. A short walkthrough can live in the README. Use numbered pages when the walkthrough has distinct parts.
 
-Each exercise asks the learner to change observable behavior. Add boundary or failure-case tests whenever applicable. Hints progress from conceptual guidance to a more concrete suggestion; the complete solution explains why it works and discusses an alternative.
+Explain new syntax beside the code. Put short comparisons there too. Use `COMPARISON.md` when seeing complete programs together helps the reader follow how each language solves the same problem. Add files as the topic calls for them. For example, add `src/lib.rs` when teaching a library, `tests/` when teaching integration tests, or a Makefile when the lesson needs a shared shortcut.
+
+When a lesson has an exercise, describe the behavior to change and how to check it. Include boundary or failure cases where relevant. Provide gradual hints and an explained solution the reader can open separately.
 
 ### Command contract
 
-| Command | Meaning |
-|---|---|
-| `make help` | Explain supported targets and underlying tools. |
-| `make run` | Run the worked example; board lessons clearly state that this flashes/runs hardware. |
-| `make test` | Run ordinary host tests, or the embedded lesson's explicitly selected portable-core tests. |
-| `make fmt` / `make lint` | Format the selected code; run the documented Clippy policy. |
-| `make coverage` | Generate host-side coverage for the declared code scope. |
-| `make verify` | Run the lesson's non-hardware reference checks; root verification also checks complete solutions. |
-| `make exercise` / `make solution` | Run acceptance tests against the clearly identified starter or solution package. |
-| `make flash` | Explicitly flash the firmware. |
-| `make test-target` | Execute on-device tests with the target test harness. |
-| `make hil` | Run host-driven hardware acceptance tests. |
+Use the Cargo commands in each lesson to work through the examples. At the repository root, `make help` lists the available shortcuts.
 
-Unsupported checks report “not applicable,” rather than presenting a misleading passing result. A requested hardware test fails clearly when no board is available. Repository-wide verification never silently flashes devices.
+| Command | When it applies | What it does |
+|---|---|---|
+| `make help` | Lesson 00 | List the available shortcuts. |
+| `make run` | Lesson 00 | Run the supplied readings example from the root. Document any board lesson's run command that also flashes hardware. |
+| `make fmt`, `make fmt-check`, `make lint` | Lesson 00 | Format Rust code, check its formatting, or run Clippy. |
+| `make verify` | Lesson 00 onward | Check worked examples. Include complete solutions as they are added. |
+| `make comparisons` | Lesson 00 | Run the readings program in C++, Python, and Rust and check the output. |
+| `make test` | Lesson 01 onward | Run supplied host tests, or the portable-core tests selected by an embedded lesson. |
+| `make exercise`, `make solution` | Lessons with separate packages | Run the acceptance tests for the named starter or solution. |
+| `make coverage` | From Lesson 17 | Generate coverage for the specified host packages. |
+| `make flash` | From E01 | Flash firmware to the selected board. |
+| `make test-target` | From E10 | Run tests on the board. |
+| `make hil` | From E11 | Run host-driven tests against the board. |
+
+Add targets when their checks are available. Hardware commands report a setup failure when the board is unavailable. Repository-wide verification runs without flashing hardware.
 
 ## 5. General Rust curriculum
 
-The entries below are proposed lesson scopes and completion evidence, not existing repository contents.
+The entries below describe each lesson's topics and what you should be able to do after working through it.
 
 ### Part 0 — Rust orientation for C/C++ and Python programmers
 
 **Lesson 00 — A first look at Rust: syntax, similarities, and differences**
 
-**Package:** `host/lessons/00-rust-orientation/` (`lesson-00-rust-orientation`).
+**Package:** `host/00-rust-orientation/` (`lesson-00-rust-orientation`).
 
-**Outcome:** Read a small Rust program without getting stuck on punctuation, modify its behavior, run its tests, and identify which familiar C++/Python assumptions need revisiting. This is an orientation, not a compressed ownership course.
+**Outcome:** Create a Cargo project, run Hello World, and explain how a small Rust program uses a function and a loop to count readings.
 
-**Session size:** Approximately 45–60 minutes after environment setup. No board is required.
+**Session size:** Three short parts with a natural stopping point after each.
 
-**Prerequisites:** Existing programming experience and the minimal Linux/WSL setup recipe or supplied development container. Provide the exact commands needed to run the supplied package; do not require completion of Lesson 01 first. Lesson 01 subsequently explains installation choices, Cargo, and package creation in depth.
-
-| ID and package | Concepts to practice | Exercise and evidence |
-|---|---|---|
-| 00 `rust-orientation` | Basic syntax, side-by-side C++/Python comparisons, reading compiler feedback, and a brief preview of Rust's ownership model. | Read equivalent small programs, predict their output, change a threshold rule in Rust, and use boundary tests to verify it. Explain one compiler error and one behavioral test failure. |
+**Prerequisites:** Programming experience and the tools from one setup guide. The walkthrough introduces Cargo and project files as it uses them.
 
 #### Guided walkthrough
 
 | Segment | Scope |
 |---|---|
-| Same task, three languages | Show a small reading-threshold program in C++, Python, and Rust. Compare the entry point, variable declarations, a function, a loop, and output. Keep the algorithm and sample data identical. |
-| Essential syntax | Practice `fn`, `let`, `let mut`, type annotations, function parameters and `->` return types, braces, semicolons, arrays, `if`/`else`, and `for`. Explain `println!` and `#[test]` only as needed to run the example. |
-| Similar appearance, different rules | Compare inferred types with dynamic typing, mutation with shadowing, and statements with value-producing expressions. Repair short examples involving immutable bindings, a missing Boolean condition, and an unintended trailing semicolon. |
-| Read, change, test | Run the worked example and its tests. In the separate exercise package, change a strict threshold to an inclusive threshold, add boundary assertions, and verify the revised behavior. |
-| What comes next | Preview ownership and borrowing with one annotated owned-value example. Point to the dedicated lessons instead of requiring the learner to master moves, references, lifetimes, or traits now. |
+| Cargo and Hello World | Create `hello_rust` and open `src/main.rs`. Explain the entry point and `println!`, then run a second complete example to see the output change. |
+| Functions and variables | Define and call functions, pass typed parameters, compare explicit `return` with a final expression, and use `let` and `let mut`. |
+| Readings and control flow | Use `if`/`else`, a fixed-size array, and `for`. Trace the count for `[18, 22, 25, 29]` and compare the same program in Rust, C++, and Python. |
 
-The introductory syntax follows the Rust Book's common-programming-concepts material. [R19] Keep the required hands-on work limited to scalar values, a fixed-size array, ordinary control flow, and a tiny pure function; leave advanced vocabulary in the reference sheet.
+The introductory syntax follows the Rust Book's common-programming-concepts material. All three parts use one `src/main.rs`. [R19]
 
 #### Cross-language comparison guide
 
 | Topic | Familiar connection | Rust distinction to make explicit |
 |---|---|---|
 | Types and inference | Compare a C++ local declared with `auto` and a Python name assigned a value. | Rust can infer a local type, but the binding still has a compile-time type; inference is not dynamic typing. [R22][R25] |
-| Variables and mutation | Start with ordinary assignment and familiar C++ `const` declarations. | `let` bindings are immutable by default; `let mut` enables mutation. A new `let` can shadow an earlier binding, including with a different type. Do not present binding immutability as a guarantee of deep immutability. [R20] |
+| Variables and mutation | Start with ordinary assignment and familiar C++ `const` declarations. | `let` bindings are immutable by default. `let mut` enables mutation. [R20] |
 | Functions and returns | Compare C++ function signatures and Python `def` with Rust `fn`. | Function parameters have declared types; `->` introduces the return type. A tail expression can produce the return value without `return`. [R21] |
 | Blocks and semicolons | Braces resemble C++; Python programmers already distinguish statements from expressions. | A block can produce a value. Adding a semicolon to its intended tail expression can discard that value and cause a type mismatch. [R21] |
-| Conditions and loops | Compare C++ branches/range-based loops and Python `if`/`for`. | Conditions require `bool`, not implicit integer truthiness. Show `if` as an expression and a basic array/range loop. [R23] |
-| Resource ownership | Connect scope-based cleanup to C++ RAII, then contrast it with Python assignment to an existing object. | An owned, non-`Copy` Rust value can move on assignment; the old binding is then unusable. Neither an implicit deep copy nor an unrestricted second alias should be assumed. Full treatment belongs in Lessons 03–04. [R24][R25] |
+| Conditions and loops | Compare C++ branches and range-based loops with Python `if` and `for`. | Show a `bool` condition and a loop over an array. [R23] |
 
 Use the C++ and Python examples as comparisons, not as specifications for all Rust behavior. In particular, do not describe Rust simply as C++ with a borrow checker, claim that modern C++ lacks automatic resource management, or imply that a program compiling proves its behavioral correctness.
 
-#### Recognize now; explain later
-
-Supply a short `CHEATSHEET.md` with tiny annotated examples and links to the later lessons. The learner need not write code using all these forms in Lesson 00.
-
-| Syntax or idea | Later treatment |
-|---|---|
-| `&value`, `&mut value`, moves, and explicit cloning | Lessons 03–04: ownership and borrowing. |
-| `String` and `&str` | Lesson 05: owned text and borrowed string views. |
-| `struct`, `enum`, `match`, `Option`, `Result`, and `?` | Lessons 06–07: modeling data, optional values, and recoverable errors. Use `Option` to preview explicit absence rather than a nullable ordinary value. [R26] |
-| `use`, `pub`, `impl`, and traits | Lessons 08 and 10: organization, APIs, and trait-based design. |
-| `async` and `.await` | Lessons 22–23 and the Embassy track. |
-
-#### Exercise: change a threshold rule
-
-Provide a working program that examines `[18, 22, 25, 29]` with a limit of `25`. Its small pure function initially implements a strict comparison: `value > limit`. The walkthrough predicts and then confirms that exactly one reading qualifies.
-
-The exercise changes the requirement to include readings equal to the limit: `value >= limit`. The learner updates the separate starter implementation, adds assertions for below/equal/above the limit, and verifies that the example now counts two qualifying readings. Include a negative-value case so the tests are not merely copies of the demonstration data.
-
-Supply one intentionally incorrect implementation that still compiles, such as retaining `>` instead of `>=`, and show which boundary assertion catches it. Keep compiler-error demonstrations separate: a rejected program and a wrong-but-compiling program teach different lessons. Fix diagnostics one at a time and restore the passing reference example afterward.
-
-**Completion evidence:** The learner can explain the main program, the mutability of the counter, the type and return value of the predicate, why the equality case matters, and the difference between successful compilation and correct behavior. They can make the change without replacing the package with an unexplained AI-generated solution.
-
-#### Planned lesson package
-
-```text
-host/lessons/00-rust-orientation/
-├── Cargo.toml
-├── Makefile
-├── README.md
-├── CHEATSHEET.md
-├── EXERCISE.md
-├── HINTS.md
-├── SOLUTION.md
-├── src/
-│   ├── lib.rs                      # Small scalar predicate and unit tests
-│   └── main.rs                     # Fixed sample data, loop, and output
-└── comparisons/
-    ├── threshold.cpp               # C++ reading aid; optional local execution
-    └── threshold.py                # Python reading aid; optional local execution
-```
-
-The exercise and complete solution follow the repository's existing separate-package convention. `make run`, `make test`, `make lint`, and `make verify` operate on the worked example; `make exercise` and `make solution` identify their respective packages. An extra C++ compiler is not a prerequisite for running the Rust lesson. Cross-language examples must be checked for consistent sample results when authored.
+The finished Rust program lives in `src/main.rs`. Earlier Rust programs and the C++ and Python source files live in `examples/`. The comparison page shows the syntax side by side and includes all three complete programs. Author checks run the printed Rust walkthrough in a fresh Cargo project and confirm that all three readings programs print the expected count. [Lesson 00 comparison](host/00-rust-orientation/COMPARISON.md)
 
 **Transition:** Lesson 00 answers “What am I looking at, and how do I make a small change?” Lesson 01 explains the tools and creates a package from scratch. Lesson 02 revisits the basic syntax with numeric boundaries, conversions, and more precise type reasoning. Lessons 03–04 then develop the ownership and borrowing model.
 
@@ -269,7 +216,7 @@ The exercise and complete solution follow the repository's existing separate-pac
 
 | ID and package | Concepts to practice | Exercise and evidence |
 |---|---|---|
-| 01 `toolchain-and-cargo` | Explain the tools used in Lesson 00: toolchain, package layout, build/run/check/test, compiler diagnostics, formatting. | Create a tiny unit-conversion library and executable from a blank package. Distinguish a compilation failure from a failing test, repair both, and run the checks. |
+| 01 `toolchain-and-cargo` | Build on the toolchain, package layout, and build/run/check commands from Lesson 00. Introduce `cargo test`, compiler diagnostics, and formatting. | Create a tiny unit converter from a blank package. Keep the program and its first tests in `src/main.rs`. Repair a compiler error and a failing assertion, and explain what each check caught. |
 | 02 `types-and-expressions` | Deepen the syntax from Lesson 00: bindings and shadowing, scalar types, functions, expression types, matching basic values, checked integer conversions and numeric boundaries. | Implement a bounded numeric conversion; test ordinary values, boundaries, and invalid input. Explain the type and conversion choices rather than repeat the introductory syntax tour. |
 | 03 `ownership-and-moves` | Ownership, moves, `Copy`, `Clone`, destruction; contrast with C++ resource ownership. | Repair moved-value errors without indiscriminate cloning. Predict which values remain usable and when resources are released. |
 | 04 `borrowing-and-slices` | Shared/mutable references, aliasing restrictions, slices, borrowing through function calls. | Process a buffer in place and expose a borrowed view. Explain and repair an overlapping-borrow example. |
@@ -396,7 +343,7 @@ Track missing error paths and assertion quality, not only percentage. Include a 
 
 ### Quality policy
 
-Formatting, ordinary lint checks, and tests apply from the first lesson. Complete reference implementations and solutions must pass. Use targeted, explained lint allowances for intentional teaching examples rather than global suppression.
+From Lesson 00, verify that the examples run, check formatting and selected Clippy lints, and follow the printed commands in a fresh project. Lesson 01 introduces Cargo tests. Complete examples and solutions must pass the checks that apply to them. Explain any local lint allowance next to the teaching example that needs it.
 
 Default examples avoid unnecessary `unsafe`. The unsafe lesson isolates and documents its boundary. Do not forbid constructs globally when the curriculum intentionally teaches them; apply stricter policies to the relevant packages and stages.
 
@@ -406,7 +353,7 @@ Default tests must not require internet connectivity, wall-clock sleeps, random 
 
 ### Normal GitHub-hosted CI
 
-Run formatting checks, Clippy, unit/integration/documentation/property tests, compile-fail cases, host coverage, and firmware compile/link checks. Build complete solutions separately. Validate supported feature combinations explicitly instead of blindly enabling mutually incompatible runtime or chip features.
+Host CI starts with formatting, Clippy, and runnable example checks. Add unit, integration, documentation, property, and compile-fail checks as the course introduces them. Build complete solutions separately when supplied. Add host coverage and firmware build checks in their respective phases. Test explicitly supported feature combinations.
 
 Retain coverage reports and firmware artifacts where useful. Establish Linux as the required gate; add small macOS/Windows host smoke checks only when they do not create a second maintenance project.
 
@@ -420,7 +367,7 @@ Hardware jobs must select the correct probe/board, serialize access, reset to a 
 
 ## 10. Optional extensions
 
-These are not prerequisites for completing the core path. Each extension also receives its own Cargo package and lesson Makefile.
+These extensions are optional. Each has its own Cargo package and documents its commands.
 
 | ID | Topic | Example scope and requirements |
 |---|---|---|
@@ -435,7 +382,7 @@ These are not prerequisites for completing the core path. Each extension also re
 
 ### Milestone 1: Validate the course scaffold
 
-Create the root navigation, lesson templates, initial host CI, and Linux/WSL/Docker setup. Implement Lesson 00 and the Lesson 01 tooling walkthrough as the first runnable host packages, including the orientation comparisons, exercise, solution, and tests. In parallel, validate a minimal H723ZG flash/log example and one host-testable embedded core library. Choose and record the actual working toolchain and crate versions.
+Create the root navigation, lesson templates, initial host CI, and Linux/WSL/Docker setup. Verify the Lesson 00 examples and Lesson 01 tooling walkthrough with the host pin. In parallel, validate a minimal H723ZG flash/log example and one host-testable embedded core library. Record the toolchain and crate versions used for board verification.
 
 This is a prerequisite for writing dozens of embedded examples: hardware and toolchain assumptions should fail early rather than after the curriculum has been implemented around them.
 
@@ -453,9 +400,9 @@ Run a fresh-checkout walkthrough, review cross-language explanations, verify all
 
 ## 12. Definition of done for a lesson
 
-A lesson is ready when its documented commands work from a fresh checkout in the primary environment; its complete example and solution pass the appropriate checks; its exercise has a meaningful observable outcome; and its tests include relevant boundaries or failure behavior.
+A lesson is ready when its documented commands work from a fresh checkout in the primary environment and its examples pass the appropriate checks. Where supplied, solutions must pass their checks, exercises must have observable outcomes, and tests must cover relevant boundaries or failure behavior.
 
-The learner can identify what the test suite establishes and what it does not. Each hardware lesson lists required equipment, recovery steps, and whether its results were actually obtained on the NUCLEO-H723ZG. Claims of successful board execution require recorded board execution, not just successful cross-compilation.
+When a lesson includes tests, the learner can explain which behavior they check. Each hardware lesson lists required equipment and recovery steps. Report cross-build and board execution results separately and record observations from the actual NUCLEO-H723ZG.
 
 The intended result is not familiarity with Rust syntax alone. It is the ability to make a small, justified change, predict its consequences, and demonstrate its correctness with appropriately scoped evidence.
 
@@ -486,6 +433,4 @@ These references support the platform and tooling decisions. Lesson content will
 - [R21: The Rust Programming Language — Functions](https://doc.rust-lang.org/book/ch03-03-how-functions-work.html)
 - [R22: The Rust Programming Language — Data types](https://doc.rust-lang.org/book/ch03-02-data-types.html)
 - [R23: The Rust Programming Language — Control flow](https://doc.rust-lang.org/book/ch03-05-control-flow.html)
-- [R24: The Rust Programming Language — What is ownership?](https://doc.rust-lang.org/book/ch04-01-what-is-ownership.html)
 - [R25: Python Language Reference — Simple statements and assignment](https://docs.python.org/3/reference/simple_stmts.html)
-- [R26: The Rust Programming Language — Defining an enum](https://doc.rust-lang.org/book/ch06-01-defining-an-enum.html)

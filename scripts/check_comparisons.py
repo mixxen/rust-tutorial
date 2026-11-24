@@ -5,7 +5,7 @@ import sys
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
-LESSON = ROOT / "host/lessons/00-rust-orientation"
+LESSON = ROOT / "host/00-rust-orientation"
 EXPECTED = "Readings above 25: 1\n"
 
 
@@ -23,11 +23,11 @@ def main() -> None:
         executable = Path(directory) / "threshold"
         subprocess.run(
             ["g++", "-std=c++17", "-Wall", "-Wextra", "-Werror", "-pedantic",
-             str(LESSON / "comparisons/threshold.cpp"), "-o", str(executable)],
+             str(LESSON / "examples/threshold.cpp"), "-o", str(executable)],
             check=True, timeout=60,
         )
         check_output("C++", [str(executable)])
-        check_output("Python", [sys.executable, str(LESSON / "comparisons/threshold.py")])
+        check_output("Python", [sys.executable, str(LESSON / "examples/threshold.py")])
         check_output("Rust", ["cargo", "run", "--quiet", "--locked", "--offline"])
 
 

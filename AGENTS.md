@@ -20,11 +20,11 @@ Choose deliberate names: `reading`, `command_receiver`, `elapsed_time`, and `rej
 
 Keep examples small. Do not introduce unexplained abstractions, iterator chains, or async code before their lessons. Comments explain decisions and constraints. C++/Python comparisons must be fair and use matching behavior.
 
-Deliver the explanation, worked example, exercise, hints, explained solution, and tests together. Keep hints and solutions separate from the default walkthrough. A learner should be able to predict, modify, test, and explain the code.
+Lesson 00 is an example-only orientation. For lessons with an exercise, deliver the explanation, worked example, exercise, hints, explained solution, and tests together. Keep hints and solutions separate from the default walkthrough.
 
 ## Build and verify honestly
 
-Follow the curriculum's separate host/embedded workspaces and separate example/exercise/solution packages. Keep Cargo authoritative and Makefiles small. Do not allow board target settings to leak into host checks. Learner-owned `practice/` files must never be reset or used as repository verification input.
+Follow the curriculum's separate host/embedded workspaces. When a lesson has an exercise and solution, keep their packages separate from the worked example. Keep Cargo authoritative and Makefiles small. Do not allow board target settings to leak into host checks. Learner-owned `practice/` files must never be reset or used as repository verification input.
 
 Regular verification checks complete examples and solutions, not unfinished exercise assertions. Commands must identify what they tested. Isolate intentional compiler failures. Verification must not silently flash hardware or rewrite source files.
 

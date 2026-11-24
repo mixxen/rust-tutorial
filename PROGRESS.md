@@ -1,12 +1,33 @@
 # Implementation progress
 
-## Phase 1 — Lesson 00 revised after learner feedback
+## Phase 1. Lesson 00
 
-**The revised Lesson 00 passed its automated Linux and Docker checks. Phase 1 remains in progress, and a learner trial of the revision is still pending.** The first version passed automated checks too, but its learner trial exposed missing instruction. Passing checks does not establish teaching readiness.
+Lesson 00 has a three-part walkthrough and runnable examples. The learner edits one `src/main.rs` from the first Hello World program through the readings example. [Lesson overview](host/00-rust-orientation/README.md)
 
-Alex downloaded and tried the first version, then reported that it assumed Rust knowledge he did not have: what Cargo is, how to create a main file, how to write Hello World, and how function syntax works. This is actual learner feedback, not a hypothetical review. No claim is made that the revised version has completed a learner trial.
+New practice projects use `practice/hello_rust/`. Learners who started at `practice/lesson-00/hello_rust/` can keep using that project.
 
-| Lesson / task | Current state |
+The comparison page brings the three complete readings programs together. [C++, Python, and Rust comparison](host/00-rust-orientation/COMPARISON.md)
+
+### Verification on November 23, 2026
+
+Verified the Lesson 00 changes and documentation using a fresh copy of the staged files and the pinned Rust 1.90.0 toolchain. The follow-up is based on `c9c7bf5`.
+
+| Environment | Observed results |
+|---|---|
+| Ubuntu 22.04.3 | `make verify` passed formatting, Clippy, Markdown links, and the fresh Cargo project walkthrough. All nine printed programs matched their source copies and ran with the expected output. |
+| Ubuntu 22.04.3 | `make comparisons` and `make run` printed `Readings above 25: 1`. From the lesson directory, `cargo run` printed the same count, `cargo run --example hello_world` printed `Hello, world!`, and `cargo check --examples --locked --offline` passed. |
+| Docker development image | Image build passed. A non-root container with runtime networking disabled passed `make verify`, `make comparisons`, and `make run` using a read-only source mount. |
+| Documentation and CI review | All 17 Markdown files were reviewed. The local links passed, the 37 external links resolved, and all comparison snippets and complete listings matched their sources. `actionlint` accepted the host workflow. |
+
+The latest review feedback was that Lesson 00 looks good. A fresh learner walkthrough and interactive WSL and VS Code setup still need a run. Firmware and board checks are tracked separately. Lesson 01 is the next implementation batch and will introduce Cargo tests.
+
+## Historical revision — Lesson 00 after the first learner trial
+
+This earlier four-part revision passed automated Linux and Docker checks. The first version had passed automated checks too, and the first learner trial still found gaps in the instructions.
+
+Alex tried the first version and reported gaps in the explanations of Cargo, source files, Hello World, and function syntax.
+
+| Lesson or task | State at that revision |
 |---|---|
 | 00 — opening walkthrough | Rewritten as four ordered parts: first program, functions/variables, readings/control flow, first tests/course layout |
 | Reference example and acceptance exercise | Existing behavior preserved; exercise instructions rewritten with Cargo-first steps |
@@ -18,7 +39,7 @@ Alex downloaded and tried the first version, then reported that it assumed Rust 
 
 ### Scope clarification from the learner trial
 
-Keep the approved lesson IDs and course count. Lesson 00 now includes essential Cargo/project creation and a gradual explanation of functions; these are not deferred prerequisites supplied by Lesson 01. The original short orientation duration is no longer a constraint: the four parts offer natural stopping points. `CURRICULUM.md` and `IMPLEMENTATION_PLAN.md` retain their original planning snapshot; this record and the implemented Lesson 00 describe the revised opening.
+This revision brought project creation and function syntax into Lesson 00 and split the material into four parts. The lesson numbers and course count stayed the same.
 
 The ordinary walkthrough stays in one learner-created `src/main.rs` until after the first tests. Only then does it explain `pub`, `use`, `src/lib.rs`, and the supplied course structure. The explicit-return example precedes the final-expression shorthand. Make is a later convenience, not an unexplained first command.
 
@@ -26,7 +47,7 @@ The ordinary walkthrough stays in one learner-created `src/main.rs` until after 
 
 **Implementation revision:** `28e212ddd49eba60e93fe4dd99b54a1634b60da5`.
 
-**Evidence:** [GitHub Actions run 34283327094](https://github.com/mixxen/rust-tutorial/actions/runs/34283327094). Both the `linux` job (`102253010534`) and the `docker` job (`102253010789`) completed successfully. The Linux log and both jobs' step results were inspected. The pull-request workflow tested GitHub's proposed merge revision `15ca1c5ca34ecd05e49d08337a0e8ca5d3c392fb`, combining that implementation with the unchanged main branch. The PR has not actually been merged.
+**Evidence:** Both the `linux` job (`102253010534`) and the `docker` job (`102253010789`) completed successfully. The Linux log and both jobs' step results were inspected. The pull-request workflow tested GitHub's proposed merge revision `15ca1c5ca34ecd05e49d08337a0e8ca5d3c392fb`, which combined that implementation with `main` as it existed at the time. [GitHub Actions run 34283327094](https://github.com/mixxen/rust-tutorial/actions/runs/34283327094)
 
 This record is a subsequent documentation-only update; the evidence names the exact implementation it verifies.
 
@@ -69,9 +90,3 @@ The Linux job used a fresh GitHub-hosted Ubuntu 24.04 checkout and installed the
 | Tracked-file changes after verification | None in either job |
 
 An initial run found stale-build reuse in the author-only exercise checker when copied sources preserved timestamps. Writing replacement source and using independent build directories fixed it. No acceptance assertions were weakened. The new walkthrough checker follows the same independent-output approach.
-
-## Remaining limits and next step
-
-A fresh interactive desktop installation, WSL, VS Code's container UI, macOS, native Windows, and physical hardware have not been verified here. There is no code-coverage measurement or embedded execution claim. The local-link checker does not validate external sites or Markdown heading anchors.
-
-The revised first experience needs another learner walkthrough before expanding the teaching pattern. Lesson 01 remains the next new lesson, not work completed by this revision. The early board check remains separate and must record build results separately from observed board behavior.

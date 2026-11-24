@@ -1,14 +1,33 @@
 .DEFAULT_GOAL := help
-.PHONY: help run test lint fmt fmt-check verify comparisons
+.PHONY: help run lint fmt fmt-check verify comparisons
+
+LESSON := host/00-rust-orientation
+HOST_MANIFEST := host/Cargo.toml
 
 help:
-	@printf '%s\n' 'Start: host/lessons/00-rust-orientation/README.md' 'make run         Run Lesson 00 worked example' 'make test        Test worked examples and complete solutions' 'make lint        Check complete code with Clippy' 'make fmt-check   Check formatting without rewriting files' 'make fmt         Format complete code (changes files)' 'make verify      Run standard checks; not exercise assertions' 'make comparisons Compare Rust/C++/Python output (requires g++)' 'Exercise: make -C exercises/00-rust-orientation test'
+	@printf '%s\n' 'Start at $(LESSON)/README.md' \
+		'make run          Run the Lesson 00 readings example' \
+		'make lint         Check the host binaries with Clippy' \
+		'make fmt-check    Check Rust formatting' \
+		'make fmt          Format Rust code' \
+		'make verify       Check formatting, links, and runnable walkthrough examples' \
+		'make comparisons  Compare the Rust, C++, and Python programs'
 
 run:
-	@$(MAKE) --no-print-directory -C host/lessons/00-rust-orientation run
+	cargo run --manifest-path $(LESSON)/Cargo.toml --locked --offline
 
-test lint fmt fmt-check verify:
-	@bash scripts/host_checks.sh $@
+lint:
+	cargo clippy --manifest-path $(HOST_MANIFEST) --workspace --bins --locked --offline -- -D warnings
+
+fmt:
+	cargo fmt --manifest-path $(HOST_MANIFEST) --all
+
+fmt-check:
+	cargo fmt --manifest-path $(HOST_MANIFEST) --all -- --check
+
+verify: fmt-check lint
+	@python3 scripts/check_repository.py
+	@python3 scripts/check_walkthrough.py
 
 comparisons:
 	@python3 scripts/check_comparisons.py

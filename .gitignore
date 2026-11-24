@@ -1,4 +1,4 @@
-# Build output, including standalone exercise and solution packages.
+# Build output.
 **/target/
 **/debug/
 **/*.rs.bk

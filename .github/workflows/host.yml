@@ -33,17 +33,12 @@ jobs:
           cargo --version
           python3 --version
           g++ --version
-      - name: Verify complete code and exercise scaffolding
+      - name: Verify Lesson 00 examples and documentation
         run: make verify
       - name: Check all three language examples
         run: make comparisons
-      - name: Check intentional exercise failures in a temporary copy
-        run: python3 scripts/check_exercise_baseline.py
-      - name: Check documented lesson-local commands
-        run: |
-          make -C host/lessons/00-rust-orientation run
-          make -C host/lessons/00-rust-orientation verify
-          make -C host/lessons/00-rust-orientation solution
+      - name: Run the example from the repository root
+        run: make run
       - name: Checks must not rewrite tracked files
         run: git diff --exit-code
 
@@ -59,6 +54,6 @@ jobs:
           docker build --build-arg USER_UID="$(id -u)" --build-arg USER_GID="$(id -g)" -t rust-tutorial:phase-1 -f .devcontainer/Dockerfile .
       - name: Check as a non-root user without runtime network access
         run: |
-          docker run --rm --network none --mount type=bind,source="$PWD",target=/workspace --workdir /workspace rust-tutorial:phase-1 bash -c 'test "$(id -u)" -ne 0 && make verify && make comparisons && python3 scripts/check_exercise_baseline.py'
+          docker run --rm --network none --mount type=bind,source="$PWD",target=/workspace --workdir /workspace rust-tutorial:phase-1 bash -c 'test "$(id -u)" -ne 0 && make verify && make comparisons'
       - name: Checks must not rewrite tracked files
         run: git diff --exit-code

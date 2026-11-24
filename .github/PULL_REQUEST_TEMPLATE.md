@@ -4,18 +4,18 @@ What can the learner do after this change?
 
 ## Scope
 
-Phase, lesson, and deliberately deferred work:
+Which phase and lessons does this cover?
 
 ## Checks actually run
 
-Commands, environment, and observed results (not planned results):
+List the commands you ran, the environment, and what you observed.
 
 ## Teaching review
 
 - [ ] New punctuation and terminology are explained near first use.
 - [ ] Code names express intent; examples stay small.
-- [ ] Example, exercise, hints, and explained solution agree.
-- [ ] Exercise results cannot be confused with solution results.
+- [ ] Where provided, the exercise, hints, solution, and example agree.
+- [ ] Where provided, the exercise and solution checks identify which package they ran.
 - [ ] Documentation shows the working directory and expected behavior.
 - [ ] Any board or platform checks not run are explicitly named.
 

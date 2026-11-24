@@ -1,6 +1,6 @@
 # Lesson authoring template
 
-This is a writing checklist, not a runnable lesson. Replace the descriptions with concrete teaching material when adding a package.
+Start with a README, a Cargo manifest, and one source file where practical. Use this checklist to decide what the lesson needs.
 
 ## Title, goal, and prerequisites
 
@@ -8,24 +8,20 @@ Name the task. State what a learner can do after completing it, what concepts th
 
 ## Run something small
 
-Show the working directory, exact command, and expected output. Ask the learner to predict one result before revealing it. Explain how supplied scaffolding differs from the code they will change.
+Show the working directory, the exact command, and the expected output. Identify the source file the learner will edit and say whether each example replaces or extends it.
 
 ## Walk through the code
 
-Introduce a few concepts in a deliberate order. Add a small new-syntax table. Explain names, input/output meaning, and important boundaries beside the relevant source. Compare C++/Python only where it clarifies a difference. Keep snippets synchronized with actual files.
+Introduce new syntax beside the line that uses it. Explain what comes in and what should come out. Keep printed examples in sync with the source files. Use a short inline comparison when it is enough, or link to `COMPARISON.md` for complete programs worth reading together.
 
-## Change behavior
+## Add an exercise when the lesson calls for one
 
-Give the exercise package path, a concrete requirement, and acceptance criteria. Distinguish its test command from the worked example and solution. Do not weaken acceptance tests to hide mistakes. Ask learners to add their own cases in a separate test file.
-
-## Get unstuck
-
-Provide progressive hints in a separate file and an explicitly linked solution explanation. The solution should explain a decision and a relevant alternative, not merely paste code.
+Give the starter package path, a concrete requirement, and a command that checks it. Name the package that each command runs. Keep the starter and solution in separate packages, and point readers to the hints and explained solution when they need them.
 
 ## Check understanding
 
-Ask a few questions about behavior, a boundary case, and why the design is written this way. Include one small task the learner can attempt without copying the example. Close with the next existing lesson, or honestly state that the next lesson is still planned.
+Where useful, ask the learner to predict a result or explain a boundary case. Link to the next lesson when it is available.
 
 ## Author finish line
 
-Record executable checks, naming/readability review, and limits of the evidence. Make sure paths and commands work from a fresh checkout. The first working example, unfinished exercise, and complete solution must remain distinct.
+Follow the commands from a fresh checkout. Record what ran, what it showed, and which environments or hardware checks still need a run.

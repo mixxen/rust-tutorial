@@ -1,12 +1,12 @@
 # Use Docker for the host lessons
 
-The development image contains the selected Rust release, Make, Python, and the C++ compiler used for comparison checks. Docker is an alternative to installing those tools directly. You need a working Docker installation first; see the [official installation documentation](https://docs.docker.com/engine/install/).
+The Docker image contains the course's Rust release, Make, Python, and the C++ compiler used for the comparison. Install Docker before you build the image. [Docker installation guide](https://docs.docker.com/engine/install/)
 
-The image installs tools as root during its build, then runs lessons as the **non-root `learner` user**. It does not request privileged mode, USB access, or a mounted Docker socket. It is not a board-flashing setup.
+The image installs tools as root during the build. The container runs the lesson as the `learner` user.
 
 ## Linux or WSL terminal
 
-Run from the repository root, where `.devcontainer/Dockerfile` lives. Matching your user and group numbers avoids creating root-owned build files in the checkout:
+Open the repository root of your `main` checkout or ZIP. The build arguments give `learner` your user and group IDs so the files you create in the container belong to you on the host.
 
 ```bash
 docker build \
@@ -16,7 +16,7 @@ docker build \
   -f .devcontainer/Dockerfile .
 ```
 
-Start an interactive terminal in the image:
+Start a container from the repository root.
 
 ```bash
 docker run --rm -it --network none \
@@ -25,7 +25,7 @@ docker run --rm -it --network none \
   rust-tutorial:phase-1 bash
 ```
 
-Inside this terminal, the tutorial repository is `/workspace`. Check the tools:
+In the container terminal, check your directory and Rust version. `pwd` should print `/workspace`. The version commands should report `1.90.0`.
 
 ```bash
 pwd
@@ -33,17 +33,15 @@ rustc --version
 cargo --version
 ```
 
-Now follow **[Lesson 00, Part 1](../host/lessons/00-rust-orientation/FIRST_PROGRAM.md)**. Run its terminal commands inside this container. They create `practice/lesson-00/hello_rust` under `/workspace`, not inside the supplied lesson package.
+Run the Lesson 00 commands in the container terminal to create `practice/hello_rust/` under `/workspace`. Open `practice/hello_rust/src/main.rs` in your host editor. Save your edits and run `cargo run` from the project directory in the container. [Lesson 00, part 1](../host/00-rust-orientation/01-first-program.md)
 
-The bind mount connects your host checkout to `/workspace`, so you can use a host editor to open `practice/lesson-00/hello_rust/src/main.rs` and run it from the container terminal. No editor command inside the container is required. Save on the host before running `cargo run` in the container's project directory.
+The bind mount makes `/workspace` refer to your checkout on the host. Your edits and Cargo build output stay in that checkout when you exit the container. [Docker run reference](https://docs.docker.com/engine/containers/run/)
 
-Your source and practice edits persist in the mounted checkout. `--rm` removes the container when you exit, not the mounted files. Only mount a checkout you intend to work on. See [Docker's run reference](https://docs.docker.com/engine/containers/run/).
-
-The image build needs internet access. Runtime checks do not: the compiler is already installed and this lesson has no external Rust dependencies. Docker reuses image layers, while Cargo build output remains in the mounted project/workspace `target/` directories.
+The image build needs internet access. The lesson runs offline because the image has the compiler and the examples use no external Rust libraries.
 
 ## Optional repository verification
 
-After the walkthrough introduces tests and Make, you can run the course checks without opening an interactive shell. Run this from the repository root **on the host**, not inside the container:
+Run this from the repository root on the host to check the examples and documentation.
 
 ```bash
 docker run --rm --network none \
@@ -52,16 +50,14 @@ docker run --rm --network none \
   rust-tutorial:phase-1 make verify
 ```
 
-This checks supplied course code and creates a temporary project for the printed walkthrough steps. It does not reset or grade your practice project.
+The checker runs the printed programs in a temporary Cargo project.
 
 ## VS Code development container
 
-With Docker and VS Code's Dev Containers extension installed, open the repository and select **Dev Containers: Reopen in Container**. `.devcontainer/devcontainer.json` builds the same image, selects `learner`, and runs `make verify` after creation. That setup check is not a task you must understand before Hello World.
+With Docker and the VS Code Dev Containers extension installed, open the repository and select **Dev Containers: Reopen in Container**. The configuration builds the same image, starts it as `learner`, and runs `make verify`.
 
-Use the terminal in the reopened container for the walkthrough. Rust Analyzer initially opens the supplied host workspace. Your independent practice project and exercise are not members of that workspace. Add their `Cargo.toml` paths to Rust Analyzer's linked projects when you need editor assistance, or open the project folder in a suitable container-connected window. Editor assistance is optional: it does not determine what Cargo compiles from the terminal.
-
-The Docker CLI checks and the interactive VS Code setup have separate verification status. Consult [Progress](../PROGRESS.md); passing command-line checks does not establish that every editor or Docker Desktop setup has been tested.
+Use the VS Code terminal for the lesson commands. Rust Analyzer starts with the `host/` workspace. To use it in your `hello_rust` project, add the project's `Cargo.toml` to Rust Analyzer's linked projects or open the project in a container-connected window. [Verification results](../PROGRESS.md)
 
 ## Limits of reproducibility
 
-The Rust release and supplied Cargo lockfiles are pinned. The Debian-based image tag and operating-system package repositories can receive updates, so the operating-system image is not frozen byte for byte. The [tool version note](tool-versions.md) records that distinction. No coverage tooling or embedded target is installed in this first image.
+The image pins the Rust release. Rebuilding it can pick up newer Debian packages. Cargo uses the repository's lockfile when it builds the examples. [Tool versions](tool-versions.md)
